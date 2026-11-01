@@ -1,0 +1,35 @@
+# Local build products and downloaded development packages
+/build/
+/dist/
+/release-assets/
+/.publication/
+/PS2 Mini Classic/development/tools/
+/PS2 Mini Classic/development/msvc/
+/PS2 Mini Classic/development/compiler-setup/
+/PS2 Mini Classic/development/pcsx2-source/.git/
+/PS2 Mini Classic/development/pcsx2-source/deps/
+# Personal console data must never be committed
+/PS2 Mini Classic/PCSX2/
+/PS2 Mini Classic/Games/
+/PS2 Mini Classic/updates/
+/Recovery-before-library/
+/PS2 Mini Classic/config.json
+**/__pycache__/
+*.pyc
+*.pdb
+*.ilk
+*.log
+*.zip
+*.iso
+*.chd
+*.cso
+*.zso
+*.ps2
+*.p2s
+.env
+.env.*
+*.pem
+*.key
+/tests/controller-navigation/
+/tests/backend-validation/
+/tests/ui-validation/
