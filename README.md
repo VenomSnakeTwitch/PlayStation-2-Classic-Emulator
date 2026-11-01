@@ -12,8 +12,8 @@ Die fertigen Pakete gibt es unter **[Releases](https://github.com/VenomSnakeTwit
 
 | Paket | Inhalt |
 | --- | --- |
-| **PS2 Mini Classic Portable.zip** | Spielbereiter Launcher, Laufzeitbibliotheken, Sounds und bereinigte Startkonfiguration. |
-| **PS2 Mini Classic Developer Portable.zip** | Zusätzlich vollständiger Quellcode, Entwicklungsbibliotheken, Git, CMake, Ninja und Microsoft-Offline-Setup für Compiler/Windows-SDK. |
+| **PS2.Mini.Classic.Portable.zip** | Spielbereiter Launcher, Laufzeitbibliotheken, Sounds und bereinigte Startkonfiguration. |
+| **PS2.Mini.Classic.Developer.Portable.zip** | Zusätzlich vollständiger Quellcode, Entwicklungsbibliotheken, Git, CMake, Ninja und Microsoft-Offline-Setup für Compiler/Windows-SDK. |
 
 1. Ein Paket vollständig entpacken und `PS2 Mini Classic/PS2 Classic Mini Launcher.exe` starten.
 2. Eigenes BIOS auswählen und eigene Spiele im Ordner `PS2 Mini Classic/Games` ablegen oder ein eigenes Spieleverzeichnis wählen.
