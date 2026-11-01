@@ -48,6 +48,10 @@
 #include <QtCore/QTimer>
 #include <QtCore/QProcess>
 #include <QtCore/QDateTime>
+#include <QtCore/QDir>
+#include <QtCore/QFileInfo>
+#include <QtCore/QSettings>
+#include <QtCore/QStandardPaths>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QMessageBox>
 #include <QtWidgets/QFileDialog>
@@ -91,6 +95,70 @@ static void StartClassicMiniUpdateCheck(bool force)
 		arguments.push_back(QStringLiteral("--force"));
 	if (QProcess::startDetached(QString::fromStdString(helper), arguments, QString::fromStdString(EmuFolders::AppRoot)))
 		last_dispatch = now;
+}
+
+std::string Host::GetClassicMiniSteamPath(const std::string& configured_path)
+{
+	const QString configured = QString::fromStdString(configured_path);
+	QStringList candidates;
+	if (!configured.isEmpty())
+		candidates.append(configured);
+#ifdef _WIN32
+	const QSettings registry(QStringLiteral("HKEY_CURRENT_USER\\Software\\Valve\\Steam"), QSettings::NativeFormat);
+	candidates.append(registry.value(QStringLiteral("SteamExe")).toString());
+	const QString steam_root = registry.value(QStringLiteral("SteamPath")).toString();
+	if (!steam_root.isEmpty())
+		candidates.append(QDir(steam_root).filePath(QStringLiteral("steam.exe")));
+	const QString program_files = qEnvironmentVariable("ProgramFiles(x86)");
+	if (!program_files.isEmpty())
+		candidates.append(QDir(program_files).filePath(QStringLiteral("Steam/steam.exe")));
+#else
+	candidates.append(QStandardPaths::findExecutable(QStringLiteral("steam")));
+#endif
+	for (const QString& candidate : candidates)
+	{
+		const QFileInfo file(candidate);
+#ifdef _WIN32
+		const bool valid_name = file.fileName().compare(QStringLiteral("steam.exe"), Qt::CaseInsensitive) == 0;
+#else
+		const bool valid_name = file.fileName() == QStringLiteral("steam");
+#endif
+		if (valid_name && file.isFile())
+			return QDir::toNativeSeparators(file.absoluteFilePath()).toStdString();
+	}
+	return {};
+}
+
+void Host::RequestClassicMiniSteamAction(bool add_to_library)
+{
+	QMetaObject::invokeMethod(QCoreApplication::instance(), [add_to_library]() {
+		const std::string status_path = Path::Combine(EmuFolders::DataRoot, "classic/steam-status.txt");
+		FileSystem::CreateDirectoryPath(Path::Combine(EmuFolders::DataRoot, "classic").c_str(), false);
+		const QString steam = QString::fromStdString(Host::GetClassicMiniSteamPath(Host::GetBaseStringSettingValue("ClassicMini", "SteamPath", "")));
+		if (steam.isEmpty())
+		{
+			FileSystem::WriteStringToFile(status_path.c_str(), "Steam wurde nicht gefunden. Bitte das Steam-Programm auswaehlen.");
+			return;
+		}
+		bool copied = false;
+		if (add_to_library)
+		{
+			if (QClipboard* clipboard = QGuiApplication::clipboard())
+			{
+				clipboard->setText(QDir::toNativeSeparators(QString::fromStdString(FileSystem::GetProgramPath())));
+				copied = true;
+			}
+		}
+		const QString uri = add_to_library ? QStringLiteral("steam://open/addnonsteamgame") : QStringLiteral("steam://open/games");
+		if (!QProcess::startDetached(steam, {uri}, QFileInfo(steam).absolutePath()))
+			FileSystem::WriteStringToFile(status_path.c_str(), "Steam konnte nicht gestartet werden. Bitte den Steam-Pfad pruefen.");
+		else if (add_to_library)
+			FileSystem::WriteStringToFile(status_path.c_str(), copied ?
+				"Steam wurde aufgerufen und der EXE-Pfad kopiert. In Steam den Launcher waehlen oder Durchsuchen / Strg+V nutzen. Hinzufuegen dort bestaetigen." :
+				"Steam wurde aufgerufen. Bitte in Steam ueber Durchsuchen die Launcher-EXE waehlen und Hinzufuegen bestaetigen.");
+		else
+			FileSystem::WriteStringToFile(status_path.c_str(), "Steam wurde aufgerufen. Falls noetig, dort anmelden.");
+	}, Qt::QueuedConnection);
 }
 
 void Host::RequestClassicMiniUpdateCheck()

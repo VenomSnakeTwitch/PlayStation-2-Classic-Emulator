@@ -21,6 +21,7 @@ for section in list(ini.sections()):
 def set_value(section,key,value):
     if not ini.has_section(section):ini.add_section(section)
     ini.set(section,key,str(value))
+ini.remove_option('ClassicMini','SteamPath')
 for key in ('MainWindowGeometry','MainWindowState','DisplayWindowGeometry'):
     ini.remove_option('UI',key)
 for section,key,value in [

@@ -1,2 +1,2 @@
-450ded4bb2c407c3ef5b0d7b7b3db54ac2853fddce69eee8aeef6877d0feb48d  PS2.Mini.Classic.Portable.zip
-47b2207626c1393ab6727a672dcaea7c77d53a5fcdef7e76abc4d3cb09232ece  PS2.Mini.Classic.Developer.Portable.zip
+bfc89320d6e8460cdb117a32bc28d115759ef6b47a552e67508d25fb3cac4b5e  PS2.Mini.Classic.Portable.zip
+18beb7d950fe58e65e1ca0e1eea844cd48eba653020c8fb3d51dd894485f91bb  PS2.Mini.Classic.Developer.Portable.zip

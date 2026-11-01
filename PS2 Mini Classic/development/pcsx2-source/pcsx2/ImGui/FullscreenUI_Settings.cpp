@@ -1883,6 +1883,7 @@ void FullscreenUI::DrawSettingsWindow()
 			ICON_PF_GAMEPAD_ALT,
 			ICON_PF_KEYBOARD_ALT,
 			ICON_FA_TRIANGLE_EXCLAMATION,
+			ICON_FA_LINK,
 			ICON_FA_DOWNLOAD,
 		};
 		static constexpr const char* per_game_icons[] = {
@@ -1910,6 +1911,7 @@ void FullscreenUI::DrawSettingsWindow()
 			SettingsPage::Controller,
 			SettingsPage::Hotkey,
 			SettingsPage::Advanced,
+			SettingsPage::Steam,
 			SettingsPage::Updates,
 		};
 		static constexpr SettingsPage per_game_pages[] = {
@@ -1941,8 +1943,11 @@ void FullscreenUI::DrawSettingsWindow()
 			FSUI_NSTR("Patches"),
 			FSUI_NSTR("Cheats"),
 			FSUI_NSTR("Game Fixes"),
+			"Steam",
 			"Updates",
 		};
+		static_assert(std::size(global_icons) == std::size(global_pages));
+		static_assert(std::size(titles) == static_cast<u32>(SettingsPage::Count));
 
 		const u32 count = game_settings ? (show_advanced_settings ? std::size(per_game_pages) : (std::size(per_game_pages) - 1)) : std::size(global_pages);
 		const char* const* icons = game_settings ? per_game_icons : global_icons;
@@ -2043,6 +2048,9 @@ void FullscreenUI::DrawSettingsWindow()
 
 			case SettingsPage::Updates:
 				DrawUpdatesSettingsPage();
+				break;
+			case SettingsPage::Steam:
+				DrawSteamSettingsPage();
 				break;
 
 			case SettingsPage::Interface:
@@ -2251,6 +2259,71 @@ void FullscreenUI::DrawSummarySettingsPage()
 	if (MenuButton(FSUI_ICONSTR(ICON_FA_TRASH, "Clear Settings"), FSUI_CSTR("Clears all settings set for this game.")))
 		DoClearGameSettings();
 
+	EndMenuButtons();
+}
+
+void FullscreenUI::DrawSteamSettingsPage()
+{
+	SettingsInterface* bsi = GetEditingSettingsInterface();
+	static std::string steam_path;
+	static double next_refresh = 0.0;
+	if (ImGui::GetTime() >= next_refresh)
+	{
+		steam_path = Host::GetClassicMiniSteamPath(bsi->GetStringValue("ClassicMini", "SteamPath", ""));
+		next_refresh = ImGui::GetTime() + 1.0;
+	}
+	const std::string launcher_path = FileSystem::GetProgramPath();
+	BeginMenuButtons();
+	MenuHeading("Steam");
+	if (MenuButton("Launcher zu Steam hinzufuegen",
+		steam_path.empty() ? "Steam wurde nicht gefunden. Bitte zuerst das Steam-Programm auswaehlen." :
+		"Oeffnet Steams Hinzufuegen-Fenster und kopiert den Launcher-Pfad. Den Eintrag einmal in Steam bestaetigen.", !steam_path.empty()))
+		Host::RequestClassicMiniSteamAction(true);
+	if (MenuButton("Steam oeffnen", "Startet Steam oder bringt dessen Bibliothek nach vorne.", !steam_path.empty()))
+		Host::RequestClassicMiniSteamAction(false);
+	if (MenuButton("Launcher-Pfad kopieren", launcher_path.c_str()))
+	{
+		Host::CopyTextToClipboard(launcher_path);
+		ShowToast("Steam", "Launcher-Pfad kopiert. In Steams Dateiauswahl mit Strg+V einfuegen.");
+	}
+	if (MenuButton("Steam-Programm auswaehlen", steam_path.empty() ? "Steam.exe auf diesem Rechner auswaehlen." : steam_path.c_str()))
+	{
+		OpenFileSelector("Steam-Programm auswaehlen", false, [](const std::string& path) {
+			if (!path.empty())
+			{
+#ifdef _WIN32
+				const bool valid = StringUtil::Strcasecmp(std::string(Path::GetFileName(path)).c_str(), "steam.exe") == 0;
+#else
+				const bool valid = Path::GetFileName(path) == "steam";
+#endif
+				if (valid)
+				{
+					Host::SetBaseStringSettingValue("ClassicMini", "SteamPath", path.c_str());
+					Host::CommitBaseSettingChanges();
+					next_refresh = 0.0;
+				}
+				else
+					ShowToast("Steam", "Bitte das Steam-Programm auswaehlen.");
+			}
+			CloseFileSelector();
+		}, {"*"}, steam_path.empty() ? std::string() : std::string(Path::GetDirectory(steam_path)));
+	}
+	if (MenuButton("Steam automatisch erkennen", "Entfernt einen manuell ausgewaehlten Steam-Pfad und sucht die Installation erneut."))
+	{
+		bsi->DeleteValue("ClassicMini", "SteamPath");
+		SetSettingsChanged(bsi);
+		next_refresh = 0.0;
+	}
+	if (MenuButton("So fuegst du den Launcher hinzu", "Anleitung fuer die Bestaetigung in Steam anzeigen."))
+		OpenInfoMessageDialog("Launcher zu Steam hinzufuegen",
+			"1. Oben 'Launcher zu Steam hinzufuegen' waehlen.\n\n"
+			"2. In Steam den Launcher markieren. Falls er nicht in der Liste steht: 'Durchsuchen' waehlen, Strg+V druecken und die EXE oeffnen.\n\n"
+			"3. 'Ausgewaehlte Programme hinzufuegen' bestaetigen.\n\n"
+			"Der Eintrag kann danach direkt aus der Steam-Bibliothek gestartet werden.");
+	MenuHeading("Status");
+	const std::string status = FileSystem::ReadFileToString(Path::Combine(EmuFolders::DataRoot, "classic/steam-status.txt").c_str())
+		.value_or("Bereit. Steam bestaetigt das Hinzufuegen im eigenen Fenster.");
+	MenuButton("Steam-Verknuepfung", status.c_str(), false);
 	EndMenuButtons();
 }
 

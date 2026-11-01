@@ -31,6 +31,7 @@ Die fertigen Pakete gibt es unter **[Releases](https://github.com/VenomSnakeTwit
 - Textur-Werkstatt im Spielmenü und in der Bibliothek: Dumps ansehen, Ersatzbilder importieren, deaktivieren und zurücksetzen. Das Ersatzbild erhält automatisch den Dateinamen des ausgewählten Dumps.
 - Eigene Handbücher und Notizen, RAM-Suche und PNACH-Editor mit zeilenweiser Controller-Eingabe.
 - Update-Menü mit manueller Prüfung, Compiler-Einrichtung und Rückkehr zur vorherigen installierten Version.
+- Systemkonfiguration → Steam: Launcher über Steams eigenes Hinzufügen-Fenster in die Bibliothek aufnehmen; automatische Steam-Erkennung, Pfadauswahl und kopierbarer EXE-Pfad. Den Eintrag einmal in Steam bestätigen.
 
 ## Bedienung
 

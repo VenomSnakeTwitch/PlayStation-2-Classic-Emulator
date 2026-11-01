@@ -62,6 +62,8 @@ namespace Host
 	void RequestClassicMiniRollback();
 	void RequestClassicMiniTexture(std::string serial, u32 crc, std::string name, std::string source, int mode);
 	void RequestClassicMiniDeveloperAction(bool setup);
+	std::string GetClassicMiniSteamPath(const std::string& configured_path);
+	void RequestClassicMiniSteamAction(bool add_to_library);
 	/// Requests shut down and exit of the hosting application. This may not actually exit,
 	/// if the user cancels the shutdown confirmation.
 	void RequestExitApplication(bool allow_confirm);

@@ -187,6 +187,7 @@ namespace FullscreenUI
 		Patches,
 		Cheats,
 		GameFixes,
+		Steam,
 		Updates,
 		Count
 	};
@@ -417,6 +418,7 @@ namespace FullscreenUI
 	void OpenClassicMiniHub(int page, int filter = 0);
 	void DrawClassicMiniUpdateNotice();
 	void DrawUpdatesSettingsPage();
+	void DrawSteamSettingsPage();
 	void DrawBIOSSettingsPage();
 	void DrawEmulationSettingsPage();
 	void DrawGraphicsSettingsPage(SettingsInterface* bsi, bool show_advanced_settings);
